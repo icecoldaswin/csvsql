@@ -1,5 +1,7 @@
 package in.avc.csvsql.rowsource;
 
+import in.avc.csvsql.parser.SQLParser;
+import in.avc.csvsql.parser.model.ParseTree;
 import in.avc.csvsql.worker.consumer.OutputConsumer;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +15,7 @@ import java.util.concurrent.Callable;
 
 public class ParsedQueryRowSourceTest {
     @Test
-    public void test() throws Exception {
+    public void test_with_CsvRowSource() throws Exception {
         File file = new File("mycsv.csv");
         if (!file.exists()) {
             time(() -> {
@@ -40,6 +42,22 @@ public class ParsedQueryRowSourceTest {
             ParsedQueryRowSource parsedQueryRowSource = new ParsedQueryRowSource(
                     new CsvFileRowSource(file, true),
                     colsFilter);
+            OutputConsumer consoleOutputConsumer = OutputConsumer.consoleOutputConsumer();
+            consoleOutputConsumer.accept(parsedQueryRowSource);
+
+            return null;
+        }, "Process parsed query rowsource.");
+    }
+
+    @Test
+    public void test_with_ParseTree() throws Exception {
+
+        SQLParser parser = new SQLParser();
+
+        ParseTree tree = parser.parse("select * from mycsv.csv");
+
+        time(() -> {
+            ParsedQueryRowSource parsedQueryRowSource = new ParsedQueryRowSource(tree);
             OutputConsumer consoleOutputConsumer = OutputConsumer.consoleOutputConsumer();
             consoleOutputConsumer.accept(parsedQueryRowSource);
 

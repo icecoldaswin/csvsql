@@ -1,5 +1,6 @@
 package in.avc.csvsql.rowsource;
 
+import com.google.common.collect.Iterables;
 import in.avc.csvsql.model.Headers;
 import in.avc.csvsql.parser.Keyword;
 import in.avc.csvsql.parser.model.ParseTree;
@@ -35,8 +36,8 @@ public class ParsedQueryRowSource implements RowSource {
             ParseTreeNode node = (ParseTreeNode)child;
             QueryPart qPart = (QueryPart)node.getContent();
 
-            if (qPart.isRowsource()) {
-                rowSourceSpecification = qPart;
+            if (qPart.isRepresentsARowsource()) {
+                rowSourceSpecification = Iterables.getOnlyElement(((StringList) qPart).getStrings());
             } else if (qPart != Keyword.SELECT && qPart != Keyword.FROM) {
                 columnSpecification = qPart;
             }
@@ -63,11 +64,11 @@ public class ParsedQueryRowSource implements RowSource {
 
     @Override
     public Headers getHeaders() {
-        return this.headers;
+        return this.rowSource.getHeaders();
     }
 
     @Override
     public void setHeaders(final Headers headers) {
-        this.headers = headers;
+        // No-op - a parsed query rowsource's headers are set only when the query is parsed
     }
 }

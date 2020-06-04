@@ -1,7 +1,7 @@
 package in.avc.csvsql.parser.model;
 
-import in.avc.csvsql.parser.Keyword;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +12,8 @@ public class StringListQueryPart implements QueryPart {
     private int positionBasedMaxSize = MAX_SIZE;
     @Getter
     private List<String> strings;
+    @Setter
+    private boolean representsARowsource;
 
     public StringListQueryPart(final int positionBasedMaxSize) {
         this();
@@ -26,9 +28,14 @@ public class StringListQueryPart implements QueryPart {
 
     public void addString(final String string) {
         if (strings.size() > positionBasedMaxSize) {
-            throw new RuntimeException("Not allowed");
+            throw new RuntimeException("Current string list exceeded maximum allowed for its position");
         }
-        strings.add(trim(string));
+
+        // FIXME: !!! HACK ALERT !!!
+        // All strings except the last must end with a comma ','.
+        // The following line makes this StringList opinionated by stripping ','. This MUST NOT be done by StringList.
+        // This must be done by the consumer of this string list.
+        strings.add(trim(string.replace(",", "")));
     }
 
     private String trim(final String string) {
@@ -48,11 +55,11 @@ public class StringListQueryPart implements QueryPart {
     }
 
     public String[] getAsArray() {
-        return (String[])strings.toArray();
+        return strings.toArray(new String[strings.size()]);
     }
 
     @Override
-    public boolean isRowsource() {
-        return false;
+    public boolean isRepresentsARowsource() {
+        return representsARowsource;
     }
 }

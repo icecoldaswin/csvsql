@@ -21,12 +21,12 @@ public class SQLParser {
         for (String token: tokens) {
             boolean tokenIsAValidKeyword = false;
 
-            for (Keyword keyword: Keyword.values()) {
+            for (Keyword keyword: Keyword.values()) { // 'select', 'star', 'from', 'where' and 'operator' keywords in that order
                 if (keyword.getKeywordMatcherFunction().apply(token)) {
 
                     // If the keywordMatcherFunction evaluated to true, then that means it is a valid reserved
                     // keyword (e.g. SELECT or FROM). If it was the keyword 'FROM', then chances are what preceded this
-                    // it was a list of columns (which are not reserved keywords, as opposed to the '*' selector).
+                    // was a list of columns (which are not reserved keywords, as opposed to the '*' selector).
                     // We will then infer that the current keyword, FROM, indicates the end of the list of columns.
                     // So, we need to have them captured in the parse tree.
                     if (nonReservedWords.isNonEmpty()) {

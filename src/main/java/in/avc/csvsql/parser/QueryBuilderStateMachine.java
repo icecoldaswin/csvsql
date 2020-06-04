@@ -3,8 +3,10 @@ package in.avc.csvsql.parser;
 import in.avc.csvsql.parser.model.ParseTree;
 import in.avc.csvsql.parser.model.ParseTreeNode;
 import in.avc.csvsql.parser.model.QueryPart;
+import in.avc.csvsql.parser.model.StringList;
 import in.avc.csvsql.parser.model.StringListQueryPart;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import static in.avc.csvsql.parser.Keyword.FROM;
@@ -17,11 +19,11 @@ public class QueryBuilderStateMachine {
         ParseTreeNode selectNode = new ParseTreeNode(givenQueryPartEquals(SELECT));
 
         ParseTreeNode starNode = new ParseTreeNode(givenQueryPartEquals(STAR));
-        ParseTreeNode selectColumnListNode =  new ParseTreeNode(stringListLengthUnder(StringListQueryPart.MAX_SIZE));
+        ParseTreeNode selectColumnListNode =  new ParseTreeNode(stringListValidator(StringListQueryPart.MAX_SIZE));
 
         ParseTreeNode fromNode = new ParseTreeNode(givenQueryPartEquals(FROM));
 
-        ParseTreeNode fileRowsourceNode = new ParseTreeNode(stringListLengthUnder(1));
+        ParseTreeNode fileRowsourceNode = new ParseTreeNode(fileRowsourceFlagIndicatorFunctionWithLengthCheck(1));
 
         MODEL_PARSE_TREE.addChild(selectNode);
 
@@ -53,7 +55,19 @@ public class QueryBuilderStateMachine {
         return (givenQueryPart) -> givenQueryPart == mustBeEqualTo;
     }
 
-    private static Function<Object, Boolean> stringListLengthUnder(final int allowedLength) {
-        return (givenStringList) -> ((StringListQueryPart)givenStringList).currentSize() <= allowedLength;
+    private static Function<Object, Boolean> stringListValidator(final int allowedLength) {
+        return (givenStringList) -> ((StringList)givenStringList).currentSize() <= allowedLength;
+    }
+
+    private static Function<QueryPart, Boolean> fileRowsourceFlagIndicatorFunctionWithLengthCheck(final int allowedLength) {
+        return
+                (givenQueryPart) -> {
+                    boolean isLengthUnderLimit = stringListValidator(allowedLength).apply(givenQueryPart);
+                    if (isLengthUnderLimit) {
+                        ((StringListQueryPart)givenQueryPart).setRepresentsARowsource(true);
+                    }
+
+                    return isLengthUnderLimit;
+                };
     }
 }

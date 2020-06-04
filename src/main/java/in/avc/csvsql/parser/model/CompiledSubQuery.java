@@ -7,7 +7,7 @@ public class CompiledSubQuery implements QueryPart {
     private RowSource rowSource;
 
     @Override
-    public boolean isRowsource() {
+    public boolean isRepresentsARowsource() {
         return true;
     }
 }

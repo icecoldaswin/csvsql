@@ -2,6 +2,7 @@ package in.avc.csvsql.parser;
 
 import in.avc.csvsql.parser.model.QueryPart;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,7 +23,7 @@ public enum Keyword implements QueryPart {
     }
 
     @Override
-    public boolean isRowsource() {
+    public boolean isRepresentsARowsource() {
         return false;
     }
 }
