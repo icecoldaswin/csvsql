@@ -1,5 +1,6 @@
 package in.avc.csvsql.parser.model;
 
+import in.avc.csvsql.parser.Keyword;
 import lombok.Getter;
 
 import java.util.LinkedList;

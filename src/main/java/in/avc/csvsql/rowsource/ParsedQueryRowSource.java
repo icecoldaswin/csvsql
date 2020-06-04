@@ -1,7 +1,13 @@
 package in.avc.csvsql.rowsource;
 
 import in.avc.csvsql.model.Headers;
+import in.avc.csvsql.parser.Keyword;
+import in.avc.csvsql.parser.model.ParseTree;
+import in.avc.csvsql.parser.model.ParseTreeNode;
+import in.avc.csvsql.parser.model.QueryPart;
+import in.avc.csvsql.parser.model.StringList;
 
+import java.io.File;
 import java.util.stream.Stream;
 
 public class ParsedQueryRowSource implements RowSource {
@@ -17,6 +23,32 @@ public class ParsedQueryRowSource implements RowSource {
         this.headers = namedColumnSelectionRequested
                 ? new Headers(columnsToSelect)
                 : rowSource.getHeaders();
+    }
+
+    public ParsedQueryRowSource(final ParseTree tree) {
+        ParseTreeNode rootNode = tree.getRoot();
+
+        Object columnSpecification = null;
+        Object rowSourceSpecification = null;
+
+        for (Object child : rootNode.getChildren()) {
+            ParseTreeNode node = (ParseTreeNode)child;
+            QueryPart qPart = (QueryPart)node.getContent();
+
+            if (qPart.isRowsource()) {
+                rowSourceSpecification = qPart;
+            } else if (qPart != Keyword.SELECT && qPart != Keyword.FROM) {
+                columnSpecification = qPart;
+            }
+        }
+
+        columnsToFilter = (this.namedColumnSelectionRequested = (columnSpecification != Keyword.STAR))
+                ? ((StringList)columnSpecification).getAsArray()
+                : null;
+
+        rowSource = (rowSourceSpecification instanceof String)
+                ? new CsvFileRowSource(new File((String)rowSourceSpecification), true)
+                : (RowSource)rowSourceSpecification;
     }
 
     public final Stream<Object[]> streamData() {

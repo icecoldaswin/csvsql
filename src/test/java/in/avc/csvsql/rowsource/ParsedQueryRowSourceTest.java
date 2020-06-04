@@ -1,6 +1,6 @@
 package in.avc.csvsql.rowsource;
 
-import in.avc.csvsql.worker.consumer.ConsoleOutputConsumer;
+import in.avc.csvsql.worker.consumer.OutputConsumer;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
@@ -14,38 +14,41 @@ import java.util.concurrent.Callable;
 public class ParsedQueryRowSourceTest {
     @Test
     public void test() throws Exception {
-//        runMeasuringTime(() -> {
-//            File file = new File("mycsv.csv");
-//            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-//            for (int i = 0; i < 500000; i++) {
-//                StringBuffer rec = new StringBuffer();
-//                for (int j = 0; j < 10; j++) {
-//                    rec.append(String.format("%s,", generateString("ABCDEF0123456789", 5)));
-//                }
-//                bufferedWriter.write(rec.toString());
-//                bufferedWriter.newLine();
-//            }
-//            bufferedWriter.flush();
-//            bufferedWriter.close();
-//
-//            return null;
-//        });
+        File file = new File("mycsv.csv");
+        if (!file.exists()) {
+            time(() -> {
 
-        runMeasuringTime(() -> {
-            String[] colsFilter = {"612F6", "8D2DB"};
+                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+                Random rng = new Random();
+                for (int i = 0; i < 500000; i++) {
+                    StringBuffer rec = new StringBuffer();
+                    for (int j = 0; j < 10; j++) {
+                        rec.append(String.format("%s,", generateString(rng, "ABCDEF0123456789", 5)));
+                    }
+                    bufferedWriter.write(rec.toString());
+                    bufferedWriter.newLine();
+                }
+                bufferedWriter.flush();
+                bufferedWriter.close();
+
+                return null;
+            }, "Generate a CSV file");
+        }
+
+        time(() -> {
+            String[] colsFilter = {"FDC16","DCE1F","A0EA1"};
             ParsedQueryRowSource parsedQueryRowSource = new ParsedQueryRowSource(
-                    new CsvFileRowSource(new File("mycsv.csv"), true),
+                    new CsvFileRowSource(file, true),
                     colsFilter);
-            ConsoleOutputConsumer consoleOutputConsumer = new ConsoleOutputConsumer();
+            OutputConsumer consoleOutputConsumer = OutputConsumer.consoleOutputConsumer();
             consoleOutputConsumer.accept(parsedQueryRowSource);
 
             return null;
-        });
+        }, "Process parsed query rowsource.");
     }
 
-    private static String generateString(String characters, int length)
+    private static String generateString(final Random rng, final String characters, final int length)
     {
-        Random rng = new Random();
         char[] text = new char[length];
         for (int i = 0; i < length; i++)
         {
@@ -54,7 +57,7 @@ public class ParsedQueryRowSourceTest {
         return new String(text);
     }
 
-    private <T> T runMeasuringTime(final Callable<T> callable) throws Exception {
+    private <T> T time(final Callable<T> callable, final String comment) throws Exception {
         Instant start = Instant.now();
         try {
             return callable.call();
@@ -63,7 +66,8 @@ public class ParsedQueryRowSourceTest {
             e.printStackTrace();
             throw e;
         } finally {
-            System.out.println("Done in " + Duration.between(start, Instant.now()).toMillis() + "ms.");
+            System.out.println(String.format("Task '%s' completed in %d milli seconds.", comment,
+                    Duration.between(start, Instant.now()).toMillis()));
         }
     }
 }

@@ -21,6 +21,10 @@ public class Output {
         }
     }
 
+    public String readLine() {
+        return System.console().readLine();
+    }
+
     private void print(final String string) {
         outputStream.print(string);
     }

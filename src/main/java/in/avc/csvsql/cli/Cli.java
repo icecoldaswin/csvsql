@@ -2,18 +2,20 @@ package in.avc.csvsql.cli;
 
 import in.avc.csvsql.io.Output;
 
-public class Cli implements Runnable {
+import java.util.concurrent.Callable;
+
+public class Cli implements Callable<Void> {
     private final Output output;
 
     public Cli() {
         output = new Output();
     }
 
-    public void run () {
-        prompt();
+    @Override
+    public Void call() throws Exception {
+//        prompt();
+        return null;
     }
 
-    private void prompt() {
-        output.write("> ");
-    }
+
 }
