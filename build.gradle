@@ -1,6 +1,8 @@
 plugins {
-    id 'java'
+    id 'application'
 }
+
+apply plugin : "java"
 
 group 'org.example'
 version '1.0-SNAPSHOT'
@@ -16,6 +18,7 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
 
     compile group: 'com.google.guava', name: 'guava', version: '28.2-jre'
+
     implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
     annotationProcessor "org.projectlombok:lombok:1.18.10"
 
@@ -28,4 +31,26 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+ext {
+    javaMainClass = "in.avc.csvsql.cli.Cli"
+}
+
+run{
+    standardInput = System.in
+}
+
+application {
+    mainClassName = javaMainClass
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'in.avc.csvsql.cli.Cli'
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

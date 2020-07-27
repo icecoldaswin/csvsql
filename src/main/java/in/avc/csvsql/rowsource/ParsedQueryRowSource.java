@@ -7,6 +7,7 @@ import in.avc.csvsql.parser.model.ParseTree;
 import in.avc.csvsql.parser.model.ParseTreeNode;
 import in.avc.csvsql.parser.model.QueryPart;
 import in.avc.csvsql.parser.model.StringList;
+import in.avc.csvsql.rowsource.filters.ColumnFilter;
 
 import java.io.File;
 import java.util.stream.Stream;

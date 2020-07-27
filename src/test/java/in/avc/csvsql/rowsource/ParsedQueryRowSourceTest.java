@@ -54,7 +54,7 @@ public class ParsedQueryRowSourceTest {
 
         SQLParser parser = new SQLParser();
 
-        ParseTree tree = parser.parse("select country, city, state from src/test/data/mycsv2.csv");
+        ParseTree tree = parser.parse("select * from src/test/data/mycsv2.csv");
 
         time(() -> {
             ParsedQueryRowSource parsedQueryRowSource = new ParsedQueryRowSource(tree);

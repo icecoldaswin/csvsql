@@ -1,21 +1,29 @@
 package in.avc.csvsql.cli;
 
-import in.avc.csvsql.io.Output;
+import in.avc.csvsql.io.ConsoleIO;
+import in.avc.csvsql.parser.SQLParser;
 
-import java.util.concurrent.Callable;
-
-public class Cli implements Callable<Void> {
-    private final Output output;
+public class Cli {
+    private final CliWorkflow cliWorkflow;
 
     public Cli() {
-        output = new Output();
+        cliWorkflow = new CliWorkflow(ConsoleIO.INSTANCE, new SQLParser());
     }
 
-    @Override
-    public Void call() throws Exception {
-//        prompt();
-        return null;
+    private void run() {
+        while (true) {
+            try {
+                cliWorkflow.prompt();
+                cliWorkflow.streamData(cliWorkflow.parse(cliWorkflow.readCommand()));
+            } catch(Exception e) {
+
+            }
+        }
     }
 
+    public static void main(final String args[]) {
+        Cli cli = new Cli();
 
+        cli.run();
+    }
 }

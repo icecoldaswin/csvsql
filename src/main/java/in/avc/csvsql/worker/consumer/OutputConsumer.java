@@ -1,43 +1,51 @@
 package in.avc.csvsql.worker.consumer;
 
+import in.avc.csvsql.io.ConsoleIO;
+import in.avc.csvsql.io.IO;
 import in.avc.csvsql.rowsource.RowSource;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class OutputConsumer implements Consumer<RowSource> {
-    private PrintStream printStream;
+    private final IO io;
 
-    private OutputConsumer(final PrintStream printStream) {
+    private OutputConsumer(final IO io) {
         // Prevent instantiation
-        this.printStream = printStream;
+        this.io = io;
     }
 
     public static OutputConsumer nullOutputConsumer() {
-        return new OutputConsumer(new PrintStream(new NullOutputStream()));
+        return new OutputConsumer(null);
     }
 
     public static OutputConsumer consoleOutputConsumer() {
-        return new OutputConsumer(System.out);
+        return new OutputConsumer(ConsoleIO.INSTANCE);
     }
 
     @Override
     public void accept(final RowSource rowSource) {
-        printStream.println("Data: ");
+        io.newLine();
+        io.newLine();
+
         printRecord((Object[])rowSource.getHeaders().asArray());
-        printStream.println("------------------------------------------------");
+        io.write("------------------------------------------------");
+
+        io.newLine();
+
         long rowsProcessed = rowSource.streamData().map(columnValues -> {this.printRecord(columnValues); return null;})
                                    .count();
-        printStream.println(String.format("Rows processed: %d.", rowsProcessed));
+
+        io.info(String.format("Rows processed: %d.", rowsProcessed));
+        io.newLine();
     }
 
     private void printRecord(final Object... objects) {
-        for(Object object: objects) {
-            printStream.print(String.format("%s\t\t", object));
-        }
-        printStream.println();
+        io.writeTabDelimited(Arrays.copyOf(objects, objects.length, String[].class));
+        io.newLine();
     }
 
     private static class NullOutputStream extends OutputStream {
