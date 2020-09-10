@@ -42,6 +42,7 @@
 
                         $('#sql-result').append(table);
                         $('#submit-button').val("Next page >");
+                        $('#sql-result').removeClass("initial-fetch");
                 }
                 function getNext() {
                   $.post({url: "https://zni50a8iy6.execute-api.us-east-1.amazonaws.com/default/csvsql",
@@ -52,7 +53,13 @@
                                 updateTable(result);
                         }});
                 }
-                $('.next-page').click(function(event) { getNext() });
+                
+                $('.next-page').click(function(event) { 
+                        getNext();
+                });
+                $('.initial-fetch').click(function(event) { 
+                        $('#sql-result').html("Getting ready... may take a couple of seconds");
+                });
 
                 });
         </script>
