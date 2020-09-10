@@ -2,8 +2,13 @@
 
 This is a Java application that allows users to run SQL queries on CSV files
 
-# How to run?
+# Web
+This is WIP, preview available here: https://icecoldaswin.github.io/csvsql/ 
 
+The preview page queries an existing csv file (with random generated values). 
+
+# CLI
+## How to run
 ```
 csvql/csvsql$ gradle jar
 
